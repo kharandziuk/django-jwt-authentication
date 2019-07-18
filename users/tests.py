@@ -21,6 +21,19 @@ def test_create_user_and_set_password(django_app):
     user = models.User.objects.get()
     assert user.password != PASSWORD
 
+def test_can_obtain_password(django_app):
+    user = factories.UserFactory()
+    response = django_app.post_json(
+        reverse('token_obtain_pair'),
+        {
+            'username': user.username,
+            'password': factories.DEFAULT_PASSWORD,
+        }
+    )
+    assert response.status_code == 200
+    assert response.json['access'] != ''
+    assert response.json['refresh'] != ''
+
 def test_change_my_password(django_app):
     PASSWORD = 'password'
     NEW_PASSWORD = 'new-password'
@@ -36,7 +49,7 @@ def test_change_my_password(django_app):
     )
     assert response.status_code == 200
     assert response.json == {
-        'email': None, 'username': 'username0'
+        'email': None, 'username': user.username
     }
 
     user = models.User.objects.get()

@@ -15,6 +15,17 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+class UserManager(BaseUserManager):
+
+    def create_user(self, username, password):
+        """
+        Creates and saves a User with the given username and password.
+        """
+        user = self.create(username=username)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
 
 class User(AbstractBaseUser, BaseModel):
     username = models.CharField(
@@ -25,6 +36,8 @@ class User(AbstractBaseUser, BaseModel):
         ugettext('Email'), max_length=255, db_index=True,
         blank=True, null=True, unique=True
     )
+
+    objects = UserManager()
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ('email', 'password',)
