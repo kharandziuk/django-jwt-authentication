@@ -21,6 +21,12 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+    def update(self, user, validated_data):
+        user = super().update(user, validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = models.User.objects.all()
     serializer_class = UserSerializer
